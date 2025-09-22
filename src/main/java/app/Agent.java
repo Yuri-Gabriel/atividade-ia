@@ -1,6 +1,7 @@
 package app;
 
 import java.util.HashMap;
+import java.util.Random;
 
 public class Agent {
     private char[][] map;
@@ -41,6 +42,44 @@ public class Agent {
         this.moveFunctions.get(this.direcao).run();
         this.setVision();
         this.atualizarPontos();
+    }
+
+    public void try_exit() {
+        int random_number = 0;
+        while(this.getCharInMap(current_x, current_y) != Obstaculo.SAIDA.getValue()) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException err) {
+                err.printStackTrace();
+                break;
+            }
+            
+            int new_random = new Random().nextInt(1, 5);
+            while (random_number == new_random) {
+                new_random = new Random().nextInt(1, 5);
+            }
+            random_number = new_random;
+            switch(random_number) {
+                case 1:
+                    this.setDirection(Direcao.NORTE);
+                    break;
+                case 2:
+                    this.setDirection(Direcao.SUL);
+                    break;
+                case 3:
+                    this.setDirection(Direcao.LESTE);
+                    break;
+                case 4:
+                    this.setDirection(Direcao.OESTE);
+                    break;
+            }
+            this.showInMap();
+            System.out.println(random_number);
+            System.out.println("----------------");
+            this.move();
+        }
+        this.showInMap();
+        System.out.println("Congratulation!!! happy happy happy!!!");
     }
 
     private void setStartPos() {
@@ -120,7 +159,7 @@ public class Agent {
     }
 
     private boolean eParede(int x, int y) {
-        return this.getCharInMap(current_x - 1, current_y) == Obstaculo.PAREDE.getValue();
+        return this.getCharInMap(x, y) == Obstaculo.PAREDE.getValue();
     }
 
     private char getCharInMap(int x, int y) {
@@ -133,6 +172,6 @@ public class Agent {
             this.pontos += 10;
             this.map[this.current_y][this.current_x] = Obstaculo.CORREDOR.getValue();
         }
-        if(current_pos == Obstaculo.CORREDOR.getValue()) this.pontos--;
+        if(current_pos == Obstaculo.CORREDOR.getValue()) this.pontos = this.pontos > 0 ? this.pontos : this.pontos--;
     }
 }
