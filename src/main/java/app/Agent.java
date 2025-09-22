@@ -1,5 +1,6 @@
 package app;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -45,7 +46,6 @@ public class Agent {
     }
 
     public void try_exit() {
-        int random_number = 0;
         while(this.getCharInMap(current_x, current_y) != Obstaculo.SAIDA.getValue()) {
             try {
                 Thread.sleep(50);
@@ -53,33 +53,52 @@ public class Agent {
                 err.printStackTrace();
                 break;
             }
+
+            Direcao direcao = this.getNextDirection();
+            this.setDirection(direcao);
             
-            int new_random = new Random().nextInt(1, 5);
-            while (random_number == new_random) {
-                new_random = new Random().nextInt(1, 5);
-            }
-            random_number = new_random;
-            switch(random_number) {
-                case 1:
-                    this.setDirection(Direcao.NORTE);
-                    break;
-                case 2:
-                    this.setDirection(Direcao.SUL);
-                    break;
-                case 3:
-                    this.setDirection(Direcao.LESTE);
-                    break;
-                case 4:
-                    this.setDirection(Direcao.OESTE);
-                    break;
-            }
             this.showInMap();
-            System.out.println(random_number);
+            System.out.println(direcao);
             System.out.println("----------------");
             this.move();
         }
         this.showInMap();
         System.out.println("Congratulation!!! happy happy happy!!!");
+    }
+
+    private Direcao getNextDirection() {
+        Direcao[] disponiveis = new Direcao[4];
+        int size = 1;
+        int i = 0;
+        for(int y = 0; y < 3; y++) {
+            for(int x = 0; x < 3; x++) {
+                if(this.vision[y][x] != Obstaculo.PAREDE.getValue()) {
+                    if(y == 0 && x == 1) {
+                        disponiveis[i] = Direcao.NORTE;
+                        size++;
+                        i++;
+                    } else if (y == 1 && x == 2) {
+                        disponiveis[i] = Direcao.LESTE;
+                        size++;
+                        i++;
+                    } else if (y == 2 && x == 1) {
+                        disponiveis[i] = Direcao.SUL;
+                        size++;
+                        i++;
+                    } else if (y == 1 && x == 0) {
+                        disponiveis[i] = Direcao.OESTE;
+                        size++;
+                        i++;
+                    }
+                }
+            }
+        }
+        
+        int new_random = new Random().nextInt(0, size);
+        while(disponiveis[new_random] == null) {
+            new_random = new Random().nextInt(0, size);
+        }
+        return disponiveis[new_random];
     }
 
     private void setStartPos() {
