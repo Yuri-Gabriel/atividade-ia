@@ -119,7 +119,21 @@ public class Agent {
             for(int j = 0; j < this.map[i].length; j++) {
                 char current = (i == this.current_y && j == this.current_x) ? 
                                         this.agent_char : this.map[i][j];
-                System.out.print(current);
+                String saida = "";
+                if(current == Obstaculo.PAREDE.getValue()) {
+                    saida = "\033[34m" + current + "\033[0m";
+                } else if (current == Obstaculo.COMIDA.getValue()) {
+                    saida = "\033[33m" + current + "\033[0m";
+                } else if (current == Obstaculo.ENTRADA.getValue()) {
+                    saida = "\033[31m" + current + "\033[0m";
+                } else if (current == Obstaculo.SAIDA.getValue()) {
+                    saida = "\033[32m" + current + "\033[0m";
+                } else if (current == this.agent_char) {
+                    saida = "\033[35m" + current + "\033[0m";
+                } else {
+                    saida = String.valueOf(current);
+                }
+                System.out.print(saida);
             }
             System.out.println();
         }
