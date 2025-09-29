@@ -1,105 +1,109 @@
 package app;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Random;
 
-import app.enums.*;
+import app.enums.Direcao;
+import app.enums.Obstaculo;
+import app.struct.graph.Grafo;
+import app.struct.graph.GrafoException;
+import app.struct.graph.Vertice;
 
-public class Agent {
+public class AgentGraph {
     private char[][] map;
     private char[][] vision;
     private int current_x;
     private int current_y;
 
+    private Grafo<Posicao> grafo;
+    private LinkedList<Posicao> caminho;
+
     private final char agent_char = 'A';
 
     public int pontos;
 
-    private HashMap<Direcao, Runnable> moveFunctions;
-
-    private Direcao direcao;
-
-    public Agent(char[][] map) {
+    public AgentGraph(char[][] map) throws GrafoException {
         this.map = map;
         this.vision = new char[3][3];
-        this.direcao = Direcao.LESTE;
 
         this.pontos = 0;
 
         this.setStartPos();
         this.setVision();
 
-        this.moveFunctions = new HashMap<Direcao, Runnable>();
-        this.moveFunctions.put(Direcao.NORTE, () -> this.moverNorte());
-        this.moveFunctions.put(Direcao.LESTE, () -> this.moverLeste());
-        this.moveFunctions.put(Direcao.SUL, () -> this.moverSul());
-        this.moveFunctions.put(Direcao.OESTE, () -> this.moverOeste());
+        this.montarGrafo();
     }
 
-    public void setDirection(Direcao dir) {
-        this.direcao = dir;
-    }
+    public void montarGrafo() throws GrafoException {
+        this.grafo = new Grafo<>();
 
-    public void move() {
-        this.moveFunctions.get(this.direcao).run();
-        this.setVision();
-        this.atualizarPontos();
-    }
+        Posicao entrada = null;
+        Posicao saida = null;
 
-    public void try_exit() {
-        while(this.getCharInMap(current_x, current_y) != Obstaculo.SAIDA.getValue()) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException err) {
-                err.printStackTrace();
-                break;
-            }
+        for (int y = 0; y < this.map.length; y++) {
+            for (int x = 0; x < this.map[y].length; x++) {
+                if (!this.eParede(x, y)) {
+                    Posicao pos = new Posicao(y, x);
+                    this.grafo.addVertice(pos);
 
-            Direcao direcao = this.getNextDirection();
-            this.setDirection(direcao);
-            
-            this.showInMap();
-            System.out.println(direcao);
-            System.out.println("----------------");
-            this.move();
-        }
-        this.showInMap();
-        System.out.println("Congratulation!!! happy happy happy!!!");
-    }
-
-    private Direcao getNextDirection() {
-        Direcao[] disponiveis = new Direcao[4];
-        int size = 1;
-        int i = 0;
-        for(int y = 0; y < 3; y++) {
-            for(int x = 0; x < 3; x++) {
-                if(this.vision[y][x] != Obstaculo.PAREDE.getValue()) {
-                    if(y == 0 && x == 1) {
-                        disponiveis[i] = Direcao.NORTE;
-                        size++;
-                        i++;
-                    } else if (y == 1 && x == 2) {
-                        disponiveis[i] = Direcao.LESTE;
-                        size++;
-                        i++;
-                    } else if (y == 2 && x == 1) {
-                        disponiveis[i] = Direcao.SUL;
-                        size++;
-                        i++;
-                    } else if (y == 1 && x == 0) {
-                        disponiveis[i] = Direcao.OESTE;
-                        size++;
-                        i++;
+                    if (this.map[y][x] == Obstaculo.ENTRADA.getValue()) {
+                        entrada = pos;
+                    } else if (this.map[y][x] == Obstaculo.SAIDA.getValue()) {
+                        saida = pos;
                     }
                 }
             }
         }
-        
-        int new_random = new Random().nextInt(0, size);
-        while(disponiveis[new_random] == null) {
-            new_random = new Random().nextInt(0, size);
+
+        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+        for (int y = 0; y < this.map.length; y++) {
+            for (int x = 0; x < this.map[y].length; x++) {
+                if (this.eParede(x, y)) continue;
+
+                Posicao origem = new Posicao(y, x);
+
+                for (int[] d : dirs) {
+                    int ny = y + d[0], nx = x + d[1];
+                    if (ny >= 0 && ny < this.map.length && nx >= 0 && nx < this.map[0].length) {
+                        if (!this.eParede(nx, ny)) {
+                            Posicao destino = new Posicao(ny, nx);
+                            if (this.grafo.valorJaInserido(origem) && this.grafo.valorJaInserido(destino)) {
+                                this.grafo.addAresta(1.0, origem, destino);
+                            }
+                        }
+                    }
+                }
+            }
         }
-        return disponiveis[new_random];
+
+        LinkedList<Vertice<Posicao>> verticesCaminho = this.grafo.buscaEmLarguraCaminho(entrada, saida);
+
+        this.caminho = new LinkedList<>();
+        for (Vertice<Posicao> v : verticesCaminho) {
+            this.caminho.add(v.getValor());
+        }
+    }
+
+    public void try_exit() {
+        this.caminho.forEach((Posicao pos) -> {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException err) {
+                err.printStackTrace();
+            }
+
+
+            this.setPosition(pos.x, pos.y);
+            this.atualizarPontos();
+            this.showInMap();
+        });
+        System.out.println("Congratulation!!! happy happy happy!!!");
+    }
+
+    private void setPosition(int x, int y) {
+        this.current_x = x;
+        this.current_y = y;
     }
 
     private void setStartPos() {
@@ -165,30 +169,6 @@ public class Agent {
                 System.out.print(current);
             }
             System.out.println();
-        }
-    }
-
-    private void moverNorte() {
-        if(this.current_y > 0 && !this.eParede(current_x, current_y - 1)) {
-            this.current_y--;
-        }
-    }
-
-    private void moverLeste() {
-        if(this.current_x < this.map[0].length && !this.eParede(current_x + 1, current_y)) {
-            this.current_x++;
-        }
-    }
-
-    private void moverSul() {
-        if(this.current_y < this.map.length && !this.eParede(current_x, current_y + 1)) {
-            this.current_y++;
-        }
-    }
-
-    private void moverOeste() {
-        if(this.current_x > 0 && !this.eParede(current_x - 1, current_y)) {
-            this.current_x--;
         }
     }
 

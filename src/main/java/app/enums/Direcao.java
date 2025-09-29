@@ -1,4 +1,4 @@
-package app;
+package app.enums;
 
 public enum Direcao {
     NORTE('N'),

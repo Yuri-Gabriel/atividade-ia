@@ -14,7 +14,6 @@ public class Maze {
 
     private String parseFile() {
         String file = System.getProperty("user.dir") + "/src/main/java/app/maze.txt";
-        System.out.println("File -> " + file);
 		String lineFile = "";
         String content = "";
 		
