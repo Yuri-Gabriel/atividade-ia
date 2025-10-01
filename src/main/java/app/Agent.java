@@ -69,7 +69,7 @@ public class Agent {
 
     private Direcao getNextDirection() {
         Direcao[] disponiveis = new Direcao[4];
-        int size = 1;
+        int size = 0;
         int i = 0;
         for(int y = 0; y < 3; y++) {
             for(int x = 0; x < 3; x++) {

@@ -1,0 +1,15 @@
+XXXXXXXXXXXXXXXXX
+XE___________o__X
+X_XXXX_XXXXX_XX_X
+X_o___X_____X___X
+XXX_XXXXX_XXX_XXX
+X____o___X___o__X
+X_X_XXXXX_XXX_X_X
+X___X___o_X_____X
+XXX_X_XXXXX_XXX_X
+X__o____X_______X
+X_XXXXX_X_XXXX__X
+X____o____X__o__X
+X_XXXXXXX_X_XXX_X
+X________S______X
+XXXXXXXXXXXXXXXXX
