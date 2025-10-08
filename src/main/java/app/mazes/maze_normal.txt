@@ -1,5 +1,5 @@
 XXXXXXXXXXXXX
-XE__________X
+X____S______X
 X_XXXXX_XXX_X
 X_____X_____X
 XXXX_XX_XXXXX
@@ -11,5 +11,5 @@ X_______X___X
 X_XXXXXXX_X_X
 X_________o_X
 X_XXXXX_XXX_X
-X______S____X
+X______E____X
 XXXXXXXXXXXXX

@@ -64,7 +64,8 @@ public class AgentGraph {
                 Posicao origem = new Posicao(y, x);
 
                 for (int[] d : dirs) {
-                    int ny = y + d[0], nx = x + d[1];
+                    int ny = y + d[0];
+                    int nx = x + d[1];
                     if (ny >= 0 && ny < this.map.length && nx >= 0 && nx < this.map[0].length) {
                         if (!this.eParede(nx, ny)) {
                             Posicao destino = new Posicao(ny, nx);
@@ -147,6 +148,8 @@ public class AgentGraph {
     private void setVision() {
         int x = this.current_x - 1;
         int y = this.current_y - 1;
+        x = x < 0 ? 0 : x;
+        y = y < 0 ? 0 : y;
         int vision_x = 0;
         int vision_y = 0;
         for(int i = y; i <= y + 2; i++) {
