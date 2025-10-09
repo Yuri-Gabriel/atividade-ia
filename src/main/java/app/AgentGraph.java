@@ -15,6 +15,7 @@ public class AgentGraph {
     private char[][] vision;
     private int current_x;
     private int current_y;
+    private int num_comidas;
 
     private Grafo<Posicao> grafo;
     private LinkedList<Posicao> caminho;
@@ -29,6 +30,7 @@ public class AgentGraph {
 
         this.pontos = 0;
 
+        this.contarComida();
         this.setStartPos();
         this.setVision();
 
@@ -40,6 +42,7 @@ public class AgentGraph {
 
         Posicao entrada = null;
         Posicao saida = null;
+        LinkedList<Posicao> pos_comidas = new LinkedList<>();
 
         for (int y = 0; y < this.map.length; y++) {
             for (int x = 0; x < this.map[y].length; x++) {
@@ -51,6 +54,9 @@ public class AgentGraph {
                         entrada = pos;
                     } else if (this.map[y][x] == Obstaculo.SAIDA.getValue()) {
                         saida = pos;
+                    } else if(this.getCharInMap(x, y) == Obstaculo.COMIDA.getValue()) {
+                        pos.comida = true;
+                        pos_comidas.add(pos);
                     }
                 }
             }
@@ -77,6 +83,24 @@ public class AgentGraph {
                 }
             }
         }
+        
+        LinkedList<LinkedList<Vertice<Posicao>>> caminhos_comidas = new LinkedList<>();
+        final Posicao atual = entrada;
+        pos_comidas.forEach((c) -> {
+            boolean primeiro_ja_foi = false;
+            try {
+                if(!primeiro_ja_foi) {
+                    caminhos_comidas.add(this.grafo.buscaEmLarguraCaminho(atual, c));
+                    primeiro_ja_foi = true;
+                } else {
+                    
+                    caminhos_comidas.add(this.grafo.buscaEmLarguraCaminho(c_an, c));
+                }
+                
+            } catch (GrafoException e) {
+                e.printStackTrace();
+            }
+        });
 
         LinkedList<Vertice<Posicao>> verticesCaminho = this.grafo.buscaEmLarguraCaminho(entrada, saida);
 
@@ -181,6 +205,14 @@ public class AgentGraph {
 
     private char getCharInMap(int x, int y) {
         return this.map[y][x];
+    }
+    
+    private int contarComida() {
+        for(int i = 0; i < this.map.length; i++) {
+            for(int j = 0; j < this.map[i].length; j++) {
+                this.num_comidas += this.map[i][j] == Obstaculo.COMIDA.getValue() ? 1 : 0;
+            }
+        }
     }
 
     private void atualizarPontos() {

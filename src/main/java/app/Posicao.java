@@ -3,10 +3,12 @@ package app;
 public class Posicao {
     public int y;
     public int x;
+    public boolean comida;
 
     public Posicao(int y, int x) {
         this.y = y;
         this.x = x;
+        this.comida = false;
     }
 
     @Override
@@ -20,10 +22,5 @@ public class Posicao {
     @Override
     public int hashCode() {
         return 31 * y + x;
-    }
-
-    @Override
-    public String toString() {
-        return "(" + y + "," + x + ")";
     }
 }
