@@ -1,11 +1,9 @@
 package app;
 
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Random;
 
-import app.enums.Direcao;
 import app.enums.Obstaculo;
+
 import app.struct.graph.Grafo;
 import app.struct.graph.GrafoException;
 import app.struct.graph.Vertice;
@@ -15,7 +13,6 @@ public class AgentGraph {
     private char[][] vision;
     private int current_x;
     private int current_y;
-    private int num_comidas;
 
     private Grafo<Posicao> grafo;
     private LinkedList<Posicao> caminho;
@@ -30,7 +27,6 @@ public class AgentGraph {
 
         this.pontos = 0;
 
-        this.contarComida();
         this.setStartPos();
         this.setVision();
 
@@ -85,35 +81,30 @@ public class AgentGraph {
         }
         
         LinkedList<LinkedList<Vertice<Posicao>>> caminhos_comidas = new LinkedList<>();
-        final Posicao atual = entrada;
-        pos_comidas.forEach((c) -> {
-            boolean primeiro_ja_foi = false;
+        Posicao atual = entrada;
+        for(Posicao c : pos_comidas) {
             try {
-                if(!primeiro_ja_foi) {
-                    caminhos_comidas.add(this.grafo.buscaEmLarguraCaminho(atual, c));
-                    primeiro_ja_foi = true;
-                } else {
-                    
-                    caminhos_comidas.add(this.grafo.buscaEmLarguraCaminho(c_an, c));
-                }
-                
+                caminhos_comidas.add(this.grafo.buscaEmLarguraCaminho(atual, c));
+                atual = c;
             } catch (GrafoException e) {
                 e.printStackTrace();
             }
-        });
+        }
 
-        LinkedList<Vertice<Posicao>> verticesCaminho = this.grafo.buscaEmLarguraCaminho(entrada, saida);
+        caminhos_comidas.add(this.grafo.buscaEmLarguraCaminho(atual, saida));
 
         this.caminho = new LinkedList<>();
-        for (Vertice<Posicao> v : verticesCaminho) {
-            this.caminho.add(v.getValor());
+        for (LinkedList<Vertice<Posicao>> l : caminhos_comidas) {
+            for(Vertice<Posicao> v : l) {
+                this.caminho.add(v.getValor());
+            }
         }
     }
 
     public void try_exit() {
         this.caminho.forEach((Posicao pos) -> {
             try {
-                Thread.sleep(500);
+                Thread.sleep(50);
             } catch (InterruptedException err) {
                 err.printStackTrace();
             }
@@ -205,14 +196,6 @@ public class AgentGraph {
 
     private char getCharInMap(int x, int y) {
         return this.map[y][x];
-    }
-    
-    private int contarComida() {
-        for(int i = 0; i < this.map.length; i++) {
-            for(int j = 0; j < this.map[i].length; j++) {
-                this.num_comidas += this.map[i][j] == Obstaculo.COMIDA.getValue() ? 1 : 0;
-            }
-        }
     }
 
     private void atualizarPontos() {

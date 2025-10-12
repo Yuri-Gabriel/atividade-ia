@@ -13,7 +13,7 @@ public class Maze {
     }
 
     private String parseFile() {
-        String file = System.getProperty("user.dir") + "/src/main/java/app/mazes/maze_g.txt";
+        String file = System.getProperty("user.dir") + "/src/main/java/app/mazes/full_comida.txt";
 		String lineFile = "";
         String content = "";
 		

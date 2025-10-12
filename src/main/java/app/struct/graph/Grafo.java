@@ -76,16 +76,6 @@ public class Grafo<T> {
 	public void setAreEquals(FuncBoolean<T> func) {
 		this.areEqualsFunc = func;
 	}
-
-	private int pegarIndice(T valor) throws GrafoException {
-        if(valor == null) throw new GrafoException("Nenhum valor passado");
-        
-		for(int i = 0; i < this.vertices.size(); i++) {
-			if(this.vertices.get(i).getValor().equals(valor) || this.areEqualsFunc.run(this.vertices.get(i))) return i;
-		}
-
-		return -1;
-	}
 	
 	public LinkedList<Vertice<T>> buscaEmLarguraCaminho(T origem, T destino) throws GrafoException {
 		if (!this.valorJaInserido(origem) || !this.valorJaInserido(destino)) {
